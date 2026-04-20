@@ -1,5 +1,7 @@
 # Portfolio Tracker
 
+<img width="1444" height="739" alt="image" src="https://github.com/user-attachments/assets/6e2cf495-3d99-493b-9d4c-6d8e0f5ce8fb" />
+
 Next.js app that connects to brokerage accounts via Plaid, fetches holdings, and breaks down ETF positions into their underlying stocks using a Neon PostgreSQL database. Shows consolidated exposure, sector allocation, and charts.
 
 ## Setup
