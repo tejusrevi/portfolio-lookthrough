@@ -68,9 +68,9 @@ interface ResponseData {
 }
 
 const COLORS = [
-  '#1a1a1a', '#4a4a4a', '#7a7a7a', '#a0a0a0', '#c8102e',
-  '#2d2d2d', '#5c5c5c', '#8c8c8c', '#b5b5b5', '#d4d0ca',
-  '#3a3a3a', '#6a6a6a', '#9a9a9a', '#c0c0c0', '#e0dcd6',
+  '#4e79a7', '#59a14f', '#f28e2b', '#76b7b2', '#b07aa1',
+  '#edc948', '#9c755f', '#86bcb6', '#8cd17d', '#bab0ac',
+  '#499894', '#d4a257', '#a87fbf', '#6dae5c', '#5e94b5',
 ];
 
 // ── Helpers ─────────────────────────────────────────────────────────
@@ -138,74 +138,43 @@ export default function Home() {
 
   if (linkToken && ready && !results && !isLoading) open();
 
-  // ── Dashboard Cards ─────────────────────────────────────────────
-  const renderDashboard = (bd: PortfolioBreakdown) => {
+  // ── Stats Bar ────────────────────────────────────────────────────
+  const renderStatsBar = (bd: PortfolioBreakdown) => {
     const topHolding = bd.consolidatedHoldings[0];
     const topSector = bd.sectorBreakdown[0];
 
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Total Value</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-serif text-2xl font-bold">{fmtCurrency(bd.totalValue)}</p>
-            <p className="text-xs text-[var(--muted)] mt-1">
-              {bd.consolidatedHoldings.length} underlying holdings
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Holdings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-serif text-2xl font-bold">
-              {bd.directCount + bd.etfCount}
-            </p>
-            <p className="text-xs text-[var(--muted)] mt-1">
-              {bd.directCount} direct · {bd.etfCount} ETFs
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Top Holding</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {topHolding ? (
-              <>
-                <p className="font-serif text-2xl font-bold">{topHolding.ticker}</p>
-                <p className="text-xs text-[var(--muted)] mt-1">
-                  {fmtPct(topHolding.percentOfPortfolio)} · {fmtCurrency(topHolding.totalValue)}
-                </p>
-              </>
-            ) : (
-              <p className="text-[var(--muted)]">—</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Top Sector</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {topSector ? (
-              <>
-                <p className="font-serif text-lg font-bold truncate">{topSector.sector}</p>
-                <p className="text-xs text-[var(--muted)] mt-1">
-                  {fmtPct(topSector.percent)} · {topSector.holdings} holdings
-                </p>
-              </>
-            ) : (
-              <p className="text-[var(--muted)]">—</p>
-            )}
-          </CardContent>
-        </Card>
+      <div className="shrink-0 border-b border-[var(--border)]">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-8">
+          <div className="flex items-baseline gap-2">
+            <span className="text-[10px] font-semibold tracking-widest uppercase text-[var(--muted)]">Total</span>
+            <span className="font-serif text-xl font-bold">{fmtCurrency(bd.totalValue)}</span>
+          </div>
+          <div className="w-px h-5 bg-[var(--border)]" />
+          <div className="flex items-baseline gap-2">
+            <span className="text-[10px] font-semibold tracking-widest uppercase text-[var(--muted)]">Holdings</span>
+            <span className="font-serif text-xl font-bold">{bd.directCount + bd.etfCount}</span>
+            <span className="text-xs text-[var(--muted)]">{bd.directCount} direct · {bd.etfCount} ETFs</span>
+          </div>
+          <div className="w-px h-5 bg-[var(--border)]" />
+          {topHolding && (
+            <>
+              <div className="flex items-baseline gap-2">
+                <span className="text-[10px] font-semibold tracking-widest uppercase text-[var(--muted)]">Top</span>
+                <span className="font-serif text-lg font-bold">{topHolding.ticker}</span>
+                <span className="text-xs text-[var(--muted)]">{fmtPct(topHolding.percentOfPortfolio)}</span>
+              </div>
+              <div className="w-px h-5 bg-[var(--border)]" />
+            </>
+          )}
+          {topSector && (
+            <div className="flex items-baseline gap-2">
+              <span className="text-[10px] font-semibold tracking-widest uppercase text-[var(--muted)]">Sector</span>
+              <span className="font-serif text-sm font-bold truncate max-w-[120px]">{topSector.sector}</span>
+              <span className="text-xs text-[var(--muted)]">{fmtPct(topSector.percent)}</span>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -226,14 +195,14 @@ export default function Home() {
     }));
 
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Top Holdings Bar Chart */}
         <Card>
           <CardHeader>
             <CardTitle>Top Holdings by Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={topHoldings} layout="vertical" margin={{ left: 10, right: 20 }}>
                 <XAxis type="number" tickFormatter={(v) => fmtCompact(v)} fontSize={11} stroke="#6b6b6b" />
                 <YAxis type="category" dataKey="name" width={50} fontSize={11} stroke="#6b6b6b" />
@@ -258,7 +227,7 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             {sectorData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
                     data={sectorData}
@@ -288,7 +257,7 @@ export default function Home() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-[var(--muted)]">
+              <div className="h-[250px] flex items-center justify-center text-[var(--muted)]">
                 No sector data available
               </div>
             )}
@@ -305,7 +274,7 @@ export default function Home() {
         <CardTitle>Consolidated Holdings</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="max-h-[520px]">
+        <ScrollArea>
           <table className="w-full text-sm">
             <thead className="bg-[var(--background)] sticky top-0 z-10 border-b border-[var(--border)]">
               <tr>
@@ -472,7 +441,7 @@ export default function Home() {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <ScrollArea className="max-h-[400px]">
+                <ScrollArea>
                   <table className="w-full text-sm">
                     <thead className="bg-[var(--background)] sticky top-0 z-10 border-b border-[var(--border)]">
                       <tr>
@@ -517,25 +486,25 @@ export default function Home() {
 
   // ── Main render ─────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="h-screen flex flex-col overflow-hidden bg-[var(--background)]">
       {/* Header */}
-      <header className="border-b border-[var(--border)]">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-8 flex items-end justify-between">
+      <header className="shrink-0 border-b border-[var(--border)]">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div>
-            <h1 className="font-serif text-4xl font-bold tracking-tight text-[var(--foreground)]">
+            <h1 className="font-serif text-2xl font-bold tracking-tight text-[var(--foreground)]">
               Portfolio Tracker
             </h1>
-            <p className="text-sm text-[var(--muted)] mt-1 tracking-wide">
-              ETF look-through analysis &amp; sector breakdown
+            <p className="text-xs text-[var(--muted)] tracking-wide">
+              ETF look-through analysis
             </p>
           </div>
           <button
             onClick={handleConnect}
             disabled={isLoading}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium tracking-wide uppercase border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium tracking-wide uppercase border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading && (
-              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
@@ -547,46 +516,58 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 lg:px-8 py-10">
+      {/* Stats bar */}
+      {results && !results.error && results.hasBreakdown && results.portfolioBreakdown &&
+        renderStatsBar(results.portfolioBreakdown)
+      }
+
+      {/* Main content */}
+      <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
         {/* Error */}
         {results?.error && (
-          <div className="border border-[var(--accent)] text-[var(--accent)] px-5 py-4 mb-8 text-sm">
-            <strong>Error:</strong> {results.error}
+          <div className="max-w-7xl mx-auto w-full px-6 pt-4">
+            <div className="border border-[var(--accent)] text-[var(--accent)] px-5 py-4 text-sm">
+              <strong>Error:</strong> {results.error}
+            </div>
           </div>
         )}
 
-        {/* No results yet */}
+        {/* Empty state */}
         {!results && !isLoading && (
-          <div className="text-center py-32 text-[var(--muted)]">
-            <PieIcon className="mx-auto h-10 w-10 mb-5 stroke-1" />
-            <p className="font-serif text-xl">Connect your brokerage to view your portfolio</p>
+          <div className="flex-1 flex items-center justify-center text-[var(--muted)]">
+            <div className="text-center">
+              <PieIcon className="mx-auto h-10 w-10 mb-5 stroke-1" />
+              <p className="font-serif text-xl">Connect your brokerage to view your portfolio</p>
+            </div>
           </div>
         )}
 
+        {/* Loading state */}
         {isLoading && !results && (
-          <div className="text-center py-32 text-[var(--muted)]">
-            <svg className="animate-spin mx-auto h-8 w-8 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-            <p className="font-serif text-xl">Connecting to your brokerage…</p>
+          <div className="flex-1 flex items-center justify-center text-[var(--muted)]">
+            <div className="text-center">
+              <svg className="animate-spin mx-auto h-8 w-8 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <p className="font-serif text-xl">Connecting to your brokerage…</p>
+            </div>
           </div>
         )}
 
-        {/* Dashboard */}
+        {/* Results */}
         {results && !results.error && (
-          <>
-            {results.hasBreakdown && results.portfolioBreakdown && (
-              <>
-                {renderDashboard(results.portfolioBreakdown)}
-                {renderCharts(results.portfolioBreakdown)}
-              </>
-            )}
-
-            <Tabs defaultValue={results.hasBreakdown ? 'consolidated' : 'holdings'}>
+          <Tabs
+            defaultValue={results.hasBreakdown ? 'overview' : 'holdings'}
+            className="flex-1 min-h-0 flex flex-col"
+          >
+            <div className="shrink-0 max-w-7xl mx-auto w-full px-6 pt-4">
               <TabsList>
+                <TabsTrigger value="overview" disabled={!results.hasBreakdown}>
+                  Overview
+                </TabsTrigger>
                 <TabsTrigger value="consolidated" disabled={!results.hasBreakdown}>
-                  Consolidated Holdings
+                  Consolidated
                 </TabsTrigger>
                 <TabsTrigger value="etfs" disabled={!results.hasBreakdown}>
                   ETF Breakdown
@@ -595,24 +576,36 @@ export default function Home() {
                   Raw Holdings
                 </TabsTrigger>
               </TabsList>
+            </div>
 
-              <TabsContent value="consolidated">
+            <TabsContent value="overview" className="flex-1 min-h-0 overflow-auto pt-4">
+              <div className="max-w-7xl mx-auto px-6 pb-6">
+                {results.portfolioBreakdown && renderCharts(results.portfolioBreakdown)}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="consolidated" className="flex-1 min-h-0 overflow-auto pt-4">
+              <div className="max-w-7xl mx-auto px-6 pb-6">
                 {results.portfolioBreakdown &&
                   renderHoldingsTable(results.portfolioBreakdown.consolidatedHoldings)}
-              </TabsContent>
+              </div>
+            </TabsContent>
 
-              <TabsContent value="etfs">
+            <TabsContent value="etfs" className="flex-1 min-h-0 overflow-auto pt-4">
+              <div className="max-w-7xl mx-auto px-6 pb-6">
                 {results.portfolioBreakdown &&
                   renderETFCards(results.portfolioBreakdown.etfAnalysis)}
-              </TabsContent>
+              </div>
+            </TabsContent>
 
-              <TabsContent value="holdings">
+            <TabsContent value="holdings" className="flex-1 min-h-0 overflow-auto pt-4">
+              <div className="max-w-7xl mx-auto px-6 pb-6">
                 {renderRawHoldings()}
-              </TabsContent>
-            </Tabs>
-          </>
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
-      </main>
+      </div>
     </div>
   );
 }

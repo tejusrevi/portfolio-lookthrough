@@ -80,7 +80,7 @@ function TabsContent({
   const ctx = useContext(TabsContext);
   if (ctx.value !== value) return null;
 
-  return <div className={cn("mt-6", className)} {...props} />;
+  return <div className={cn("mt-0", className)} {...props} />;
 }
 
 export { Tabs, TabsList, TabsTrigger, TabsContent };
