@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio Tracker
 
-## Getting Started
+Next.js app that connects to brokerage accounts via Plaid, fetches holdings, and breaks down ETF positions into their underlying stocks using a Neon PostgreSQL database. Shows consolidated exposure, sector allocation, and charts.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Create a `.env.local` file with:
+
+```
+PLAID_CLIENT_ID=your_plaid_client_id
+PLAID_SECRET=your_plaid_secret
+PLAID_ENV=sandbox
+DATABASE_URL=your_neon_postgres_connection_string
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Get Plaid credentials from https://dashboard.plaid.com/team/keys
+- `PLAID_ENV` can be `sandbox`, `development`, or `production`
+- `DATABASE_URL` should point to a Neon PostgreSQL database with `etfs`, `holdings`, and `etf_holdings` tables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Run
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+Open http://localhost:3000 and click "Connect Brokerage" to link an account.
 
-To learn more about Next.js, take a look at the following resources:
+### Other Platforms
+See [Next.js deployment docs](https://nextjs.org/docs/app/building-your-application/deploying) for other hosting options.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📈 Populating ETF Data
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To populate your database with ETF holdings data, you can:
 
-## Deploy on Vercel
+1. **Manual Entry**: Insert ETF and holdings data manually
+2. **CSV Import**: Import from financial data providers
+3. **API Integration**: Build scripts to fetch from financial APIs
+4. **Data Updates**: Set up regular updates for current holdings
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Example data insertion:
+```sql
+-- Insert ETF
+INSERT INTO etfs (ticker, name) VALUES ('XEQT', 'iShares Core Equity ETF');
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-- Insert holdings
+INSERT INTO holdings (ticker, name) VALUES ('AAPL', 'Apple Inc.');
+
+-- Link ETF to holdings with weights
+INSERT INTO etf_holdings (etf_id, holding_id, weight_percent) 
+VALUES (1, 1, 4.5); -- XEQT holds 4.5% AAPL
+```
+
+## ⚠️ Disclaimer
+
+This tool is for informational purposes only. Not financial advice. Always verify holdings data with your brokerage directly.
